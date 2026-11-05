@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AYMARD - 7 Mots</title>
+<style>
+body{background:#0a0a15;color:white;font-family:Arial;text-align:center;padding:20px}
+h1{color:#00ffcc;font-size:35px}
+.box{background:#1a1a2e;border:2px solid #00ffcc;border-radius:15px;padding:20px;max-width:500px;margin:auto}
+input{width:90%;padding:15px;font-size:18px;border-radius:10px;border:none;margin:10px 0}
+button{background:#00ffcc;color:black;font-weight:bold;padding:15px 30px;border:none;border-radius:10px;font-size:18px}
+#result{margin-top:20px;font-size:18px;line-height:1.6;text-align:left;background:#000;padding:15px;border-radius:10px}
+</style>
+</head>
+<body>
+<h1>AYMARD</h1>
+<p>🌙 7 Mots Pour Changer La Réalité</p>
+<div class="box">
+<p><b>NUIT 1 - LE VILLAGE OUBLIÉ</b></p>
+<p>Tu es <b>Aymard</b>. Tu as un cahier magique.<br>Tu as droit à <b>7 MOTS MAXIMUM</b>.</p>
+<input id="phrase" placeholder="Ex: Les habitants retrouvent leur mémoire">
+<p id="compteur">Mots : 0 / 7</p>
+<button onclick="jouer()">✨ ÉCRIRE DANS LE CAHIER</button>
+<div id="result"></div>
+</div>
+<script>
+let inp=document.getElementById('phrase');
+inp.addEventListener('input',()=>{
+let m=inp.value.trim().split(/\s+/).filter(x=>x.length>0);
+document.getElementById('compteur').innerText="Mots : "+m.length+" / 7";
+});
+function jouer(){
+let texte=inp.value.trim();
+let mots=texte.split(/\s+/).filter(x=>x.length>0);
+if(mots.length==0){alert("Écris une phrase Aymard !");return;}
+if(mots.length>7){alert("TROP LONG ! "+mots.length+" mots. 7 max !");return;}
+let bas=texte.toLowerCase();
+let rep="";
+if(bas.includes("mémoire")){rep="🌅 MATIN<br><br>Les habitants se souviennent de tout !<br>Mais aussi de TES secrets.<br><br>Mama Nzuzi : 'Aymard... c'est toi qui as effacé le village ?'";}
+else if(bas.includes("pont")){rep="🌅 MATIN<br><br>La rivière est devenue un pont magique !<br>Mais il ne mène que la nuit...";}
+else if(bas.includes("soleil")){rep="🌅 MATIN<br><br>Le soleil ne se lève plus. Il fait nuit en plein jour.<br><br>Aya : 'Pourquoi tu as fait ça ?'";}
+else if(bas.includes("porte")){rep="🌅 MATIN<br><br>Toutes les portes sont devenues invisibles !";}
+else{rep="🌅 MATIN<br><br>Ta phrase est devenue réalité :<br><i>'"+texte+"'</i><br><br>Mais le cahier a exagéré... Quelque chose a changé.";}
+document.getElementById('result').innerHTML=rep;
+}
+</script>
+</body>
+</html>
