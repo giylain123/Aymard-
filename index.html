@@ -2,49 +2,108 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AYMARD - 7 Mots</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>AYMARD : Le Secret du Royaume Kongo</title>
 <style>
-body{background:#0a0a15;color:white;font-family:Arial;text-align:center;padding:20px}
-h1{color:#00ffcc;font-size:35px}
-.box{background:#1a1a2e;border:2px solid #00ffcc;border-radius:15px;padding:20px;max-width:500px;margin:auto}
-q 0}
-button{background:#00ffcc;color:black;font-weight:bold;padding:15px 30px;border:none;border-radius:10px;font-size:18px}
-#}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;font-family:Arial;overflow:hidden;touch-action:none}
+canvas{width:100vw;height:100vh;display:block}
+#hud{position:fixed;top:8px;left:10px;right:10px;display:none;justify-content:space-between;color:#fff;text-shadow:2px 2px 0 #000;font-weight:900;z-index:10}
+#menu{position:fixed;inset:0;background:linear-gradient(180deg,#2e7d32,#0a2a0a);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px;z-index:20}
+#menu h1{font-size:33px;color:#FFD700;line-height:1}
+#menu h1 span{font-size:16px;color:#fff;display:block;margin-top:6px}
+#menu p{margin:14px 0;line-height:1.5;font-size:14px}
+.btn{background:#FFD700;color:#000;border:none;padding:15px 32px;font-size:20px;font-weight:900;border-radius:50px;cursor:pointer}
+#controls{position:fixed;bottom:14px;left:0;right:0;display:none;justify-content:space-between;padding:0 14px;z-index:10}
+.cbtn{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.95);border:3px solid #222;font-size:24px;display:flex;align-items:center;justify-content:center}
+#dialog{position:fixed;bottom:100px;left:12px;right:12px;background:rgba(0,0,0,.88);color:#fff;padding:14px;border-radius:14px;display:none;z-index:15;border:2px solid #FFD700}
+#win{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;z-index:30;padding:20px}
 </style>
 </head>
 <body>
-<h1>AYMARD</h1>
-<p>🌙 7 Mots Pour Changer La Réalité</p>
-<div class="box">
-<p><b>NUIT 1 - LE VILLAGE OUBLIÉ</b></p>
-<p>Tu es <b>Aymard</b>. Tu as un cahier magique.<br>Tu as droit à <b>7 MOTS MAXIMUM</b>.</p>
-<input id="phrase" placeholder="Ex: Les habitants retrouvent leur mémoire">
-<p id="compteur">Mots : 0 / 7</p>
-<button onclick="jouer()">✨ ÉCRIRE DANS LE CAHIER</button>
-<div id="result"></div>
+<canvas id="game"></canvas>
+<div id="hud"><div>🪙 <span id="coins">0</span> ❤️ <span id="lives">3</span></div><div>MONDE 1 : FORÊT</div><div>⭐ <span id="score">0</span></div></div>
+<div id="menu">
+<div style="font-size:52px">🌍👦🏾✨</div>
+<h1>AYMARD<span>LE SECRET DU ROYAUME KONGO</span></h1>
+<p><b>MONDE 1 : LA FORÊT DES ORIGINES</b><br>1. Le Village Oublié<br>Boss : MOKÉ - Gardien Géant<br><br>🕹️ PC : ◀ ▶ + ESPACE x2 = Double Saut, X = Attaque<br>📱 Android : Boutons en bas<br><br>Avec MAMA SONIA, TIKO et KAZI</p>
+<button class="btn" onclick="startGame()">▶ JOUER</button>
+<p style="font-size:12px">Mbote ! N'ZOLA a volé les 5 pierres. <i>Betu, tokende !</i></p>
 </div>
+<div id="dialog"><b id="dlgName"></b> <span id="dlgText"></span><br><button class="btn" style="padding:8px 18px;font-size:14px;margin-top:8px" onclick="nextDialog()">SUIVANT ▶</button></div>
+<div id="controls"><div style="display:flex;gap:10px"><div class="cbtn" id="left">◀</div><div class="cbtn" id="right">▶</div></div><div style="display:flex;gap:10px"><div class="cbtn" id="atk">⚔️</div><div class="cbtn" id="jump">⬆️</div></div></div>
+<div id="win"><h2 style="color:#FFD700;font-size:30px">🎉 VICTOIRE !</h2><p id="winText" style="margin:16px 0;line-height:1.7"></p><button class="btn" onclick="location.reload()">🔁 REJOUER</button></div>
 <script>
-let inp=document.getElementById('phrase');
-inp.addEventListener('input',()=>{
-let m=inp.value.trim().split(/\s+/).filter(x=>x.length>0);
-document.getElementById('compteur').innerText="Mots : "+m.length+" / 7";
-});
-function jouer(){
-let texte=inp.value.trim();
-let mots=texte.split(/\s+/).filter(x=>x.length>0);
-if(mots.length==0){alert("Écris une phrase Aymard !");return;}
-if(mots.length>7){alert("TROP LONG ! "+mots.length+" mots. 7 max !");return;}
-let bas=texte.toLowerCase();
-let rep="";
-if(bas.includes("mémoire")){rep="🌅 MATIN<br><br>Les habitants se souviennent de tout !<br>Mais aussi de TES secrets.<br><br>Mama Nzuzi : 'Aymard... c'est toi qui as effacé le village ?'";}
-else if(bas.includes("pont")){rep="🌅 MATIN<br><br>La rivière est devenue un pont magique !<br>Mais il ne mène que la nuit...";}
-else if(bas.includes("soleil")){rep="🌅 MATIN<br><br>Le soleil ne se lève plus. Il fait nuit en plein jour.<br><br>Aya : 'Pourquoi tu as fait ça ?'";}
-else if(bas.includes("porte")){rep="🌅 MATIN<br><br>Toutes les portes sont devenues invisibles !";}
-else{rep="🌅 MATIN<br><br>Ta phrase est devenue réalité :<br><i>'"+texte+"'</i><br><br>Mais le cahier a exagéré... Quelque chose a changé.";}
-document.getElementById('result').innerHTML=rep;
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+function resize(){canvas.width=innerWidth;canvas.height=innerHeight}addEventListener('resize',resize);resize();
+let keys={},playing=false,paused=false,coins=0,score=0,lives=3,camX=0,jumps=0;
+let player={x:80,y:0,w:34,h:50,vx:0,vy:0,onGround:false,face:1,attack:0};
+let platforms=[],coinsArr=[],enemies=[],spikes=[],boss=null,dialogStep=0;
+// PERSONNAGES CORRIGÉS : MAMA SONIA
+let dialogs=[
+["MAMA SONIA","Aymard, mwana na ngai... N'ZOLA a volé les 5 pierres sacrées. Le Royaume est en danger."],
+["MAMA SONIA","Prends le médaillon de ton grand-père. Il te guidera vers la Pierre de la Forêt."],
+["TIKO","Tiko est là ! Moi aussi je viens ! Allons battre MOKÉ !"],
+["KAZI","Moi c'est KAZI ! Je suis ton ami guerrier. Je te protège !"],
+["MAMA SONIA","Saute 2 fois pour aller plus haut. Attaque avec ⚔️. Bonne chance ! Betu, tokende !"]
+];
+function build(){
+let H=innerHeight;
+platforms=[{x:0,y:H-80,w:4200,h:80},{x:320,y:H-190,w:180,h:20},{x:560,y:H-280,w:180,h:20},{x:880,y:H-190,w:180,h:20},{x:1180,y:H-290,w:220,h:20},{x:1480,y:H-200,w:180,h:20},{x:1780,y:H-290,w:200,h:20},{x:2080,y:H-190,w:180,h:20},{x:2380,y:H-290,w:200,h:20},{x:2680,y:H-200,w:180,h:20}];
+coinsArr=[];for(let i=0;i<20;i++)coinsArr.push({x:280+i*160,y:H-170-(i%3)*95,taken:false});
+enemies=[{x:700,y:0,w:30,h:36,vx:1.2,hp:1},{x:1250,y:0,w:30,h:36,vx:-1.2,hp:1},{x:1900,y:0,w:30,h:36,vx:1.2,hp:1},{x:2450,y:0,w:30,h:36,vx:-1.2,hp:1}];
+spikes=[{x:1020,y:H-100,w:60,h:20},{x:1650,y:H-100,w:60,h:20},{x:2250,y:H-100,w:60,h:20}];
+boss={x:3000,y:0,w:78,h:100,hp:8,vx:0.7,alive:true};
+player.x=80;player.y=H-200;player.vy=0;
+}
+function startGame(){document.getElementById('menu').style.display='none';document.getElementById('hud').style.display='flex';document.getElementById('controls').style.display='flex';build();showDialog();playing=true;loop();}
+function showDialog(){paused=true;document.getElementById('dialog').style.display='block';document.getElementById('dlgName').textContent=dialogs[dialogStep][0]+" :";document.getElementById('dlgText').textContent=dialogs[dialogStep][1];}
+function nextDialog(){dialogStep++;if(dialogStep>=dialogs.length){document.getElementById('dialog').style.display='none';paused=false;}else showDialog();}
+addEventListener('keydown',e=>{if(e.code==='Space'){if(!keys['Space'])doJump();keys[e.code]=true;e.preventDefault()}else keys[e.code]=true});
+addEventListener('keyup',e=>keys[e.code]=false);
+function doJump(){if(jumps<2){player.vy=-14;player.onGround=false;jumps++;}}
+function bind(id,code,action){let el=document.getElementById(id);let s=e=>{e.preventDefault();keys[code]=true;if(action)action()},en=e=>{e.preventDefault();keys[code]=false};el.addEventListener('touchstart',s);el.addEventListener('touchend',en);el.addEventListener('mousedown',s);el.addEventListener('mouseup',en);}
+bind('left','ArrowLeft');bind('right','ArrowRight');bind('jump','Space',doJump);bind('atk','KeyX');
+let hurtCd=0;
+function loop(){
+if(!playing)return;requestAnimationFrame(loop);
+if(paused){draw();return}
+player.vx=0;
+if(keys['ArrowLeft']){player.vx=-4.8;player.face=-1}
+if(keys['ArrowRight']){player.vx=4.8;player.face=1}
+if(keys['KeyX']&&player.attack<=0)player.attack=12;
+if(player.attack>0)player.attack--;
+player.vy+=0.7;if(player.vy>15)player.vy=15;player.x+=player.vx;player.y+=player.vy;player.onGround=false;
+for(let p of platforms){if(player.x+player.w>p.x&&player.x<p.x+p.w&&player.y+player.h>p.y&&player.y+player.h<p.y+28&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true;jumps=0}}
+if(player.y>innerHeight+100){lives--;updateHUD();if(lives<=0)return gameOver();player.x=camX+60;player.y=80;player.vy=0}
+camX=Math.max(0,player.x-180);
+for(let c of coinsArr){if(!c.taken&&Math.abs(player.x-c.x)<36&&Math.abs(player.y-c.y)<52){c.taken=true;coins++;score+=100;localStorage.setItem('aymard_coins',coins);updateHUD();}}
+for(let s of spikes){if(Math.abs(player.x-s.x)<45&&player.y+player.h>innerHeight-100&&player.y+player.h<innerHeight-60)hurt();}
+for(let e of enemies){e.x+=e.vx;if(e.x<150)e.vx=1.2;if(e.x>3100)e.vx=-1.2;e.y=innerHeight-80-e.h;if(player.attack>0&&Math.abs(player.x-e.x)<58&&Math.abs(player.y-e.y)<52){e.hp=0;score+=200;updateHUD()}else if(Math.abs(player.x-e.x)<30&&Math.abs(player.y-e.y)<42)hurt();}
+enemies=enemies.filter(e=>e.hp>0);
+if(boss.alive){boss.x+=boss.vx;if(boss.x<2750)boss.vx=0.7;if(boss.x>3150)boss.vx=-0.7;boss.y=innerHeight-80-boss.h;if(player.attack>0&&Math.abs(player.x-boss.x)<78&&Math.abs(player.y-boss.y)<70){boss.hp--;player.attack=0;score+=300;updateHUD();if(boss.hp<=0){boss.alive=false;score+=1000;updateHUD();}}else if(Math.abs(player.x-boss.x)<58&&Math.abs(player.y-boss.y)<58)hurt();}
+if(Math.abs(player.x-3350)<55&&player.y>innerHeight-260){playing=false;localStorage.setItem('aymard_monde1','termine');localStorage.setItem('aymard_pierre_foret','oui');document.getElementById('win').style.display='flex';document.getElementById('winText').innerHTML=`Bravo Aymard ! Tu as battu MOKÉ !<br>Tu as gagné la <b style="color:#4CAF50">PIERRE DE LA FORÊT 🌿</b><br>🪙 ${coins} | ⭐ ${score}<br><br>MAMA SONIA : <i>"Bien joué, mwana na ngai !"</i><br><br>Voix mystérieuse : <i>"Tu as sauvé le Royaume... mais tu ne connais pas encore ton véritable héritage."</i><br><br><b>MONDE 2 : LE ROYAUME DES EAUX - Bientôt !</b>`;}
+if(hurtCd>0)hurtCd--;
+draw();
+}
+function hurt(){if(hurtCd>0)return;hurtCd=60;lives--;updateHUD();player.vy=-9;if(lives<=0)gameOver();}
+function gameOver(){playing=false;alert('Aymard est tombé ! MAMA SONIA dit : Réessaie, le Royaume compte sur toi !');location.reload();}
+function updateHUD(){document.getElementById('coins').textContent=coins;document.getElementById('lives').textContent=lives;document.getElementById('score').textContent=score;}
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#87CEEB';ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(160-camX*0.2,80,42,0,7);ctx.fill();
+ctx.fillStyle='#2E7D32';for(let i=0;i<22;i++){let tx=i*210-camX*0.5;ctx.fillRect(tx,innerHeight-260,14,180);ctx.beginPath();ctx.arc(tx+7,innerHeight-280,52,0,7);ctx.fill();}
+for(let p of platforms){ctx.fillStyle='#8D6E63';ctx.fillRect(p.x-camX,p.y,p.w,p.h);ctx.fillStyle='#4CAF50';ctx.fillRect(p.x-camX,p.y,p.w,14);}
+for(let c of coinsArr){if(!c.taken){ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(c.x-camX,c.y,13,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText('🪙',c.x-camX-7,c.y+4)}}
+for(let s of spikes){ctx.fillStyle='#e53935';ctx.beginPath();ctx.moveTo(s.x-camX,s.y+20);ctx.lineTo(s.x-camX+15,s.y);ctx.lineTo(s.x-camX+30,s.y+20);ctx.lineTo(s.x-camX+45,s.y);ctx.lineTo(s.x-camX+60,s.y+20);ctx.closePath();ctx.fill();}
+for(let e of enemies){ctx.fillStyle='#5D4037';ctx.fillRect(e.x-camX,e.y,e.w,e.h);ctx.fillStyle='white';ctx.fillRect(e.x-camX+5,e.y+6,8,8);ctx.fillRect(e.x-camX+18,e.y+6,8,8);ctx.fillStyle='red';ctx.fillRect(e.x-camX+6,e.y+8,5,5);ctx.fillRect(e.x-camX+19,e.y+8,5,5)}
+ctx.fillStyle='#6A4C93';ctx.fillRect(3350-camX,innerHeight-170,62,90);ctx.fillStyle='#FFD700';ctx.fillRect(3365-camX,innerHeight-150,32,42);ctx.fillStyle='white';ctx.font='bold 12px Arial';ctx.fillText('TEMPLE',3345-camX,innerHeight-180);
+if(boss.alive){ctx.fillStyle='#2E7D32';ctx.fillRect(boss.x-camX,boss.y,boss.w,boss.h);ctx.fillStyle='#FFD700';ctx.fillRect(boss.x-camX+10,boss.y-8,58,10);ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.fillText('MOKÉ ❤️ '+boss.hp,boss.x-camX,boss.y-18);ctx.fillStyle='white';ctx.fillRect(boss.x-camX+14,boss.y+22,13,13);ctx.fillRect(boss.x-camX+50,boss.y+22,13,13)}
+let tx=player.x-30-camX,ty=player.y+22;ctx.fillStyle='#FFA726';ctx.beginPath();ctx.arc(tx+10,ty+10,14,0,7);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(tx+4,ty+5,5,5);ctx.fillStyle='#000';ctx.font='bold 9px Arial';ctx.fillText('TIKO',tx-2,ty-4);
+let px=player.x-camX,py=player.y;ctx.fillStyle='#FF8C42';ctx.fillRect(px+5,py+10,24,24);ctx.fillStyle='#111';ctx.fillRect(px+5,py+3,24,10);ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(px+17,py+36,6,0,7);ctx.fill();ctx.fillStyle='#E65100';ctx.fillRect(px,py+36,player.w,16);ctx.fillStyle='#2E7D32';ctx.fillRect(px,py+36,player.w,5);ctx.fillStyle='#333';ctx.fillRect(px+2,py+player.h-8,12,8);ctx.fillRect(px+20,py+player.h-8,12,8);
+if(player.attack>0){ctx.fillStyle='#FFD700';ctx.fillRect(px+(player.face>0?player.w:-22),py+22,22,8)}
+ctx.fillStyle='white';ctx.font='bold 11px Arial';ctx.fillText('AYMARD',px-5,py-6);
 }
 </script>
 </body>
 </html>
-q
